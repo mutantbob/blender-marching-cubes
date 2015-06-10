@@ -438,6 +438,13 @@ def genobject(objname,verts,faces):
     me = bpy.data.meshes.new(objname)  # create a new mesh
     me.from_pydata(verts,[],faces)
     me.update()      # update the mesh with the new data
+
+
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
+    bm.to_mesh(me)
+
     ob = bpy.data.objects.new(objname,me) # create a new object
     ob.data = me          # link the mesh data to the object
     scene = bpy.context.scene           # get the current scene
@@ -460,16 +467,6 @@ def genobjandremovedoubles(verts):
     verts,faces=creategeometry(verts)
     block=genobject("block",verts,faces)
     selectobj(block)
-    if True:
-        bm = bmesh.new()
-        bm.from_mesh(block.data)
-        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
-        bm.to_mesh(block.data)
-    else:
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.remove_doubles(threshold=0.01)
-        bpy.ops.object.editmode_toggle()
 
     return block
 
