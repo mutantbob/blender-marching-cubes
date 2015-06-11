@@ -21,10 +21,12 @@ This Code is based on the example from
 http://paulbourke.net/geometry/polygonise/
  by Paul Bourke,
  
- and modified by Tom Sapien to work with python within blender
- 
- V0.1
- 
+ and modified by Tom Sapien to work with python within blender.
+
+ Subsequent optimizations by Robert Forsman.
+
+ See also https://github.com/Pyroevil/CubeSurfer for a cython derivative by Jean-Francois Gallant
+
  This code is under the terms of GPL
    
 """
@@ -33,8 +35,8 @@ __copyright__ = "Copyright 2011, Tom Sapiens"
 __credits__ = ["Tom Sapiens", "Paul Bourke", "Robert Forsman"]
 __license__ = "GPL"
 __version__ = "0.1"
-__maintainer__ = "Tom Sapiens"
-__email__ = "Tom.Sapiens@spot.colorado.edu"
+__maintainer__ = "Robert Forsman"
+__email__ = "blender@thoth.purplefrog.com"
 __status__ = "alpha"
 
 
