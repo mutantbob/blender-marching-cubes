@@ -429,12 +429,11 @@ def vertexinterp(isolevel,p1,p2,valp1,valp2):
    if (ABS(valp1-valp2) < 0.00001):
       return p1
    mu = (isolevel - valp1) / (valp2 - valp1);
-   p=vec([0,0,0])
-   p[0] = p1[0] + mu * (p2[0] - p1[0]);
-   p[1] = p1[1] + mu * (p2[1] - p1[1]);
-   p[2] = p1[2] + mu * (p2[2] - p1[2]);
+   x = p1[0] + mu * (p2[0] - p1[0]);
+   y = p1[1] + mu * (p2[1] - p1[1]);
+   z = p1[2] + mu * (p2[2] - p1[2]);
 
-   return p
+   return x,y,z
 
 def create_mesh_for(objname,verts,faces):
     me = bpy.data.meshes.new(objname)  # create a new mesh
