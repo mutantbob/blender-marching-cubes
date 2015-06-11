@@ -436,7 +436,7 @@ def vertexinterp(isolevel,p1,p2,valp1,valp2):
 
    return p
 
-def genobject(objname,verts,faces):
+def create_mesh_for(objname,verts,faces):
     me = bpy.data.meshes.new(objname)  # create a new mesh
     me.from_pydata(verts,[],faces)
     me.update()      # update the mesh with the new data
@@ -449,8 +449,6 @@ def genobject(objname,verts,faces):
 
     ob = bpy.data.objects.new(objname,me) # create a new object
     ob.data = me          # link the mesh data to the object
-    scene = bpy.context.scene           # get the current scene
-    scene.objects.link(ob)                      # link the object into the scene
     return ob
 
 def creategeometry(verts):
@@ -465,9 +463,11 @@ def creategeometry(verts):
             faceoffset+=3
     return list(chain.from_iterable(verts)),faces
 
-def genobjandremovedoubles(verts):
+def make_object_in_scene(verts, scene):
     verts,faces=creategeometry(verts)
-    block=genobject("block",verts,faces)
+    block=create_mesh_for("block",verts,faces)
+
+    scene.objects.link(block)
     selectobj(block)
 
     return block
@@ -510,7 +510,7 @@ def isosurface(p0,p1,resolution,isolevel,isofunc):
           cornervalues.append(isofunc(pos))
        triangles.extend(polygonise(cornervalues,cornerpos,isolevel))
 
-    genobjandremovedoubles(triangles)
+    return make_object_in_scene(triangles, bpy.context.scene)
 
 if __name__=="__main__":
     main()
