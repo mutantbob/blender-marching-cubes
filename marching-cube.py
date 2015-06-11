@@ -517,10 +517,17 @@ def isosurface(p0,p1,resolution,isolevel,isofunc):
             for xi in range(len(z_plane_a)-1):
                 x = p0[0]+xi*r[0]
                 x2 = x + r[0]
-                if False:
-                    for i in range(8):
-                        cx,cy,cz = c_loop_1[i]
-                        cornervalues[i] = (z_plane_a if cz==0 else z_plane_b)[xi+cx][yi+cy]
+                if True:
+                    cornervalues = [
+                        z_plane_a[xi][yi],
+                        z_plane_a[xi][yi+1],
+                        z_plane_a[xi+1][yi+1],
+                        z_plane_a[xi+1][yi],
+                        z_plane_b[xi][yi],
+                        z_plane_b[xi][yi+1],
+                        z_plane_b[xi+1][yi+1],
+                        z_plane_b[xi+1][yi],
+                    ]
                 else:
                     cornervalues = [ (z_plane_a if cz==0 else z_plane_b)[xi+cx][yi+cy] for cx,cy,cz in c_loop_1]
 
