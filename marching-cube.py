@@ -430,9 +430,9 @@ def vertexinterp(isolevel,p1,p2,valp1,valp2):
       return p1
    mu = (isolevel - valp1) / (valp2 - valp1);
    p=vec([0,0,0])
-   p.x = p1.x + mu * (p2.x - p1.x);
-   p.y = p1.y + mu * (p2.y - p1.y);
-   p.z = p1.z + mu * (p2.z - p1.z);
+   p[0] = p1[0] + mu * (p2[0] - p1[0]);
+   p[1] = p1[1] + mu * (p2[1] - p1[1]);
+   p[2] = p1[2] + mu * (p2[2] - p1[2]);
 
    return p
 
@@ -494,21 +494,37 @@ def cellloop(p0,p1,r):
 
 def cornerloop(x,y,z):
     for cz in (0,z):
-     for cy,cx in zip((0,y,y,0),(0,0,x,x)):
-       yield cx,cy,cz
+        for cy,cx in zip((0,y,y,0),(0,0,x,x)):
+             yield cx,cy,cz
 
 def isosurface(p0,p1,resolution,isolevel,isofunc):
     r=[(x1-x0)/sw for x0,x1,sw in zip(p0,p1,resolution)]
 
     triangles=[]
-    for x,y,z in cellloop(p0,p1,r):
-       cornervalues=[]
-       cornerpos=[]
-       for cx,cy,cz in cornerloop(r[0],r[1],r[2]):
-          pos=vec((x+cx,y+cy,z+cz))
-          cornerpos.append(pos)
-          cornervalues.append(isofunc(pos))
-       triangles.extend(polygonise(cornervalues,cornerpos,isolevel))
+    z_a = p0[2]
+    z_plane_a = [ [ isofunc([x,y,z_a]) for y in arange(p0[1], p1[1], r[1]) ] for x in arange(p0[0], p1[0], r[0])]
+
+    c_loop = list( cornerloop(r[0], r[1], r[2]) )
+    c_loop_1 = list( cornerloop(1,1,1) )
+
+    cornervalues = [0]*8
+
+    for z in arange(p0[2], p1[2], r[2]):
+        z_plane_b = [ [ isofunc([x,y,z+r[2]]) for y in arange(p0[1], p1[1], r[1])] for x in arange(p0[0], p1[0], r[0])]
+        for yi in range(len(z_plane_a[0]) -1):
+            y = p0[1]+yi*r[1]
+            for xi in range(len(z_plane_a)-1):
+                x = p0[0]+xi*r[0]
+                cornerpos = [  [x+cx, y+cy, z+cz] for cx,cy,cz in c_loop]
+                if False:
+                    for i in range(8):
+                        cx,cy,cz = c_loop_1[i]
+                        cornervalues[i] = (z_plane_a if cz==0 else z_plane_b)[xi+cx][yi+cy]
+                else:
+                    cornervalues = [ (z_plane_a if cz==0 else z_plane_b)[xi+cx][yi+cy] for cx,cy,cz in c_loop_1]
+
+                triangles.extend(polygonise(cornervalues,cornerpos,isolevel))
+        z_plane_a = z_plane_b
 
     return make_object_in_scene(triangles, bpy.context.scene)
 
