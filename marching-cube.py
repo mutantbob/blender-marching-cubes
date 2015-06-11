@@ -376,7 +376,7 @@ tritable = [[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
 ]
 
 
-def polygonise(cornervalues,cornerpos,isolevel):
+def polygonise(cornervalues, isolevel, x1, y1, z1, x2, y2, z2):
 
 
     #   Determine the index into the edge table which
@@ -396,18 +396,18 @@ def polygonise(cornervalues,cornerpos,isolevel):
 
     vertlist=[[]]*12
     # Find the vertices where the surface intersects the cube
-    if (edgetable[cubeindex] & 1):    vertlist[0]  = vertexinterp(isolevel,cornerpos[0],cornerpos[1],cornervalues[0],cornervalues[1])
-    if (edgetable[cubeindex] & 2):    vertlist[1]  = vertexinterp(isolevel,cornerpos[1],cornerpos[2],cornervalues[1],cornervalues[2])
-    if (edgetable[cubeindex] & 4):    vertlist[2]  = vertexinterp(isolevel,cornerpos[2],cornerpos[3],cornervalues[2],cornervalues[3])
-    if (edgetable[cubeindex] & 8):    vertlist[3]  = vertexinterp(isolevel,cornerpos[3],cornerpos[0],cornervalues[3],cornervalues[0])
-    if (edgetable[cubeindex] & 16):   vertlist[4]  = vertexinterp(isolevel,cornerpos[4],cornerpos[5],cornervalues[4],cornervalues[5])
-    if (edgetable[cubeindex] & 32):   vertlist[5]  = vertexinterp(isolevel,cornerpos[5],cornerpos[6],cornervalues[5],cornervalues[6])
-    if (edgetable[cubeindex] & 64):   vertlist[6]  = vertexinterp(isolevel,cornerpos[6],cornerpos[7],cornervalues[6],cornervalues[7])
-    if (edgetable[cubeindex] & 128):  vertlist[7]  = vertexinterp(isolevel,cornerpos[7],cornerpos[4],cornervalues[7],cornervalues[4])
-    if (edgetable[cubeindex] & 256):  vertlist[8]  = vertexinterp(isolevel,cornerpos[0],cornerpos[4],cornervalues[0],cornervalues[4])
-    if (edgetable[cubeindex] & 512):  vertlist[9]  = vertexinterp(isolevel,cornerpos[1],cornerpos[5],cornervalues[1],cornervalues[5])
-    if (edgetable[cubeindex] & 1024): vertlist[10] = vertexinterp(isolevel,cornerpos[2],cornerpos[6],cornervalues[2],cornervalues[6])
-    if (edgetable[cubeindex] & 2048): vertlist[11] = vertexinterp(isolevel,cornerpos[3],cornerpos[7],cornervalues[3],cornervalues[7])
+    if (edgetable[cubeindex] & 1):    vertlist[0]  = vertexinterp(isolevel,[x1,y1,z1],[x1,y2,z1],cornervalues[0],cornervalues[1])
+    if (edgetable[cubeindex] & 2):    vertlist[1]  = vertexinterp(isolevel,[x1,y2,z1],[x2,y2,z1],cornervalues[1],cornervalues[2])
+    if (edgetable[cubeindex] & 4):    vertlist[2]  = vertexinterp(isolevel,[x2,y2,z1],[x2,y1,z1],cornervalues[2],cornervalues[3])
+    if (edgetable[cubeindex] & 8):    vertlist[3]  = vertexinterp(isolevel,[x2,y1,z1],[x1,y1,z1],cornervalues[3],cornervalues[0])
+    if (edgetable[cubeindex] & 16):   vertlist[4]  = vertexinterp(isolevel,[x1,y1,z2],[x1,y2,z2],cornervalues[4],cornervalues[5])
+    if (edgetable[cubeindex] & 32):   vertlist[5]  = vertexinterp(isolevel,[x1,y2,z2],[x2,y2,z2],cornervalues[5],cornervalues[6])
+    if (edgetable[cubeindex] & 64):   vertlist[6]  = vertexinterp(isolevel,[x2,y2,z2],[x2,y1,z2],cornervalues[6],cornervalues[7])
+    if (edgetable[cubeindex] & 128):  vertlist[7]  = vertexinterp(isolevel,[x2,y1,z2],[x1,y1,z2],cornervalues[7],cornervalues[4])
+    if (edgetable[cubeindex] & 256):  vertlist[8]  = vertexinterp(isolevel,[x1,y1,z1],[x1,y1,z2],cornervalues[0],cornervalues[4])
+    if (edgetable[cubeindex] & 512):  vertlist[9]  = vertexinterp(isolevel,[x1,y2,z1],[x1,y2,z2],cornervalues[1],cornervalues[5])
+    if (edgetable[cubeindex] & 1024): vertlist[10] = vertexinterp(isolevel,[x2,y2,z1],[x2,y2,z2],cornervalues[2],cornervalues[6])
+    if (edgetable[cubeindex] & 2048): vertlist[11] = vertexinterp(isolevel,[x2,y1,z1],[x2,y1,z2],cornervalues[3],cornervalues[7])
 
     #Create the triangle
     triangles = []
@@ -504,18 +504,19 @@ def isosurface(p0,p1,resolution,isolevel,isofunc):
     z_a = p0[2]
     z_plane_a = [ [ isofunc([x,y,z_a]) for y in arange(p0[1], p1[1], r[1]) ] for x in arange(p0[0], p1[0], r[0])]
 
-    c_loop = list( cornerloop(r[0], r[1], r[2]) )
     c_loop_1 = list( cornerloop(1,1,1) )
 
     cornervalues = [0]*8
 
     for z in arange(p0[2], p1[2], r[2]):
-        z_plane_b = [ [ isofunc([x,y,z+r[2]]) for y in arange(p0[1], p1[1], r[1])] for x in arange(p0[0], p1[0], r[0])]
+        z2 = z + r[2]
+        z_plane_b = [ [ isofunc([x,y, z2]) for y in arange(p0[1], p1[1], r[1])] for x in arange(p0[0], p1[0], r[0])]
         for yi in range(len(z_plane_a[0]) -1):
             y = p0[1]+yi*r[1]
+            y2 = y + r[1]
             for xi in range(len(z_plane_a)-1):
                 x = p0[0]+xi*r[0]
-                cornerpos = [  [x+cx, y+cy, z+cz] for cx,cy,cz in c_loop]
+                x2 = x + r[0]
                 if False:
                     for i in range(8):
                         cx,cy,cz = c_loop_1[i]
@@ -523,11 +524,10 @@ def isosurface(p0,p1,resolution,isolevel,isofunc):
                 else:
                     cornervalues = [ (z_plane_a if cz==0 else z_plane_b)[xi+cx][yi+cy] for cx,cy,cz in c_loop_1]
 
-                triangles.extend(polygonise(cornervalues,cornerpos,isolevel))
+                triangles.extend(polygonise(cornervalues, isolevel, x,y,z, x2, y2, z2))
         z_plane_a = z_plane_b
 
     return make_object_in_scene(triangles, bpy.context.scene)
 
 if __name__=="__main__":
     main()
-
